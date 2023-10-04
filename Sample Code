@@ -1,0 +1,73 @@
+data = {
+    'SKU': [1, 2, 3, 4, 5],
+    'Name': ['Vinay', 'Vijay', 'Rakesh', 'Akshay', 'Praharsha'],
+    'Description': ['Samsung new model is in our storage', 'IPHONE will be available in next week', 'There is limited stock for Oneplus', 'Iphone 14 is recommended to buy this week', 'Realme needs to be updated to attract customers'],
+    'Warehouse_Num': [10, 20, 10, 30, 20]
+}
+
+# Create a DataFrame from the dictionary
+df = pd.DataFrame(data)
+
+# Print the DataFrame
+print(df)
+
+for index, row in df.iterrows():
+    print(f"SKU = {row.SKU}, Name = {row.Name}, Description = {row.Description}, Warehouse_Num = {row.Warehouse_Num}")
+
+# Insert records in the database inventory
+
+for index, row in df.iterrows():
+    print(f"""
+        INSERT INTO m14.inventory (SKU, Name, Description, Warehouse_Num)     
+        VALUES ({row['SKU']}, '{row['Name']}', '{row['Description']}', {row['Warehouse_Num']});
+        """
+    )
+    session.execute(f"""
+        INSERT INTO m14.inventory (SKU, Name, Description, Warehouse_Num)     
+        VALUES ({row['SKU']}, '{row['Name']}', '{row['Description']}', {row['Warehouse_Num']});
+        """
+    )
+
+# Create an Index for the Warehouse_num
+session.execute("""CREATE INDEX ON m14.inventory(Warehouse_Num);""")
+
+# Query the records for Warehouse_Num = 10
+rows = session.execute("SELECT (SKU, Name, Description) FROM m14.inventory WHERE Warehouse_Num = 10 ALLOW FILTERING")
+for row in rows:
+    print(f"{row[0][0]}, {row[0][1]}, {row[0][2]}")
+
+# Update records in the database inventory
+
+# Update Record 1
+print("""
+    Updating Record 1...
+""")
+session.execute("""
+    UPDATE m14.inventory 
+    SET Name = 'John Doe', Description = 'New description', Warehouse_Num = 25
+    WHERE SKU = 1;
+    """
+)
+
+# Update Record 2
+print("""
+    Updating Record 2...
+""")
+session.execute("""
+    UPDATE m14.inventory 
+    SET Name = 'Alice Smith', Warehouse_Num = 40
+    WHERE SKU = 3;
+    """
+)
+
+# Delete a record from the database inventory
+
+# Delete Record with SKU = 5
+print("""
+    Deleting Record with SKU = 5...
+""")
+session.execute("""
+    DELETE FROM m14.inventory 
+    WHERE SKU = 5;
+    """
+)
